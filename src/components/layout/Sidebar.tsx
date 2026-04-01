@@ -8,6 +8,7 @@ const navItems = [
   { path: '/', label: 'DASH', icon: LayoutDashboard },
   { path: '/transactions', label: 'TXNS', icon: ArrowLeftRight },
   { path: '/insights', label: 'STATS', icon: TrendingUp },
+  { path: '/advisor', label: 'ADVSR', icon: Bot },
 ];
 
 export function Sidebar() {

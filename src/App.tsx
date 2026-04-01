@@ -22,6 +22,7 @@ function AppRoutes() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/insights" element={<Insights />} />
+        <Route path="/advisor" element={<Advisor />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </PageTransition>
