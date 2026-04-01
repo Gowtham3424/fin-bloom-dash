@@ -9,6 +9,7 @@ import { PageTransition } from "@/components/layout/PageTransition";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import Insights from "./pages/Insights";
+import Advisor from "./pages/Advisor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
