@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { LayoutDashboard, ArrowLeftRight, TrendingUp, Menu } from 'lucide-react';
+import { LayoutDashboard, ArrowLeftRight, TrendingUp, Bot, Menu } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { cn } from '@/lib/utils';
 
