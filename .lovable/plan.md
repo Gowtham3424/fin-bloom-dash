@@ -1,111 +1,54 @@
 
 
-# Financial Dashboard — Retro-Futurist Scandinavian Design
+# Four Feature Additions
 
-## Design Language
+## 1. Budget Tracking
 
-A Teenage Engineering-inspired aesthetic: stark monochromes, pixel-art accents, purposeful pops of high-contrast color (orange/amber for alerts, green for income, red for expenses), monospace typography, and chunky border-radius elements that feel tactile. The UI should feel like an instrument panel — every element has a purpose.
+**New file: `src/components/dashboard/BudgetTracker.tsx`**
+- Displays each expense category with a horizontal progress bar showing `spent / $limit`
+- Color-coded: green (<70%), orange (70-90%), red (>90%)
+- Admin can click a limit value to inline-edit it
 
-```text
-┌──────────────────────────────────────────────────┐
-│  ▣ FINBOARD          [Viewer ▾] [☀/☾]  [@]      │
-├────────┬─────────────────────────────────────────┤
-│ ☰ NAV  │                                         │
-│        │  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐       │
-│ □ Dash │  │BAL  │ │INC  │ │EXP  │ │SAVE%│       │
-│ □ Txns │  │▓▓▓▓ │ │▓▓▓▓ │ │▓▓▓▓ │ │▓▓▓▓ │       │
-│ □ Stats│  └─────┘ └─────┘ └─────┘ └─────┘       │
-│        │  ┌──────────────┐ ┌──────────────┐      │
-│        │  │ BALANCE TREND│ │ SPEND DONUT  │      │
-│        │  │  ╱‾‾╲__╱‾╲   │ │    ◉         │      │
-│        │  └──────────────┘ └──────────────┘      │
-│        │  ┌──────────────────────────────┐       │
-│        │  │ RECENT TRANSACTIONS          │       │
-│        │  └──────────────────────────────┘       │
-└────────┴─────────────────────────────────────────┘
-```
+**Modified: `src/types/index.ts`**
+- Add `Budget` interface: `{ category: Category; limit: number }`
+- Add `budgets: Budget[]` to `AppState`
+- Add `SET_BUDGETS` action type
 
-## Design System Overrides (`src/index.css`)
+**Modified: `src/contexts/AppContext.tsx`**
+- Initialize default budgets (one per expense category with sensible defaults like Food $500, Transport $300, etc.)
+- Handle `SET_BUDGETS` reducer action
+- Persist budgets to localStorage
 
-- **Font**: `"JetBrains Mono", "IBM Plex Mono", monospace` for all text — gives that instrument/terminal feel
-- **Light mode**: Off-white `#F5F3EE` background, near-black foreground, borders as solid dark lines
-- **Dark mode**: Deep charcoal `#1A1A1A`, warm white text
-- **Accent colors**: Purposeful only — `--income: 142 71% 45%` (green), `--expense: 0 84% 60%` (red), `--highlight: 32 95% 55%` (orange, for focus/active states)
-- **Border radius**: `--radius: 0.25rem` — sharp, boxy, tactile
-- **Shadows**: None or minimal — rely on borders and contrast
+**Modified: `src/pages/Dashboard.tsx`**
+- Add `<BudgetTracker />` section below the charts grid
 
-## File Structure
+## 2. Page Transition Animations
 
-```text
-src/
-├── contexts/AppContext.tsx        — Role, theme, transactions, filters
-├── data/mockData.ts               — ~50 transactions, 8 categories, 6 months
-├── types/index.ts                 — Transaction, Category, Role, Filter types
-├── pages/
-│   ├── Dashboard.tsx              — Summary + charts + recent txns
-│   ├── Transactions.tsx           — Full table + filters + CRUD (admin)
-│   └── Insights.tsx               — Spending analysis cards
-├── components/
-│   ├── layout/
-│   │   ├── AppShell.tsx           — Sidebar + header + content area
-│   │   ├── Sidebar.tsx            — Pixel-art styled nav icons
-│   │   └── Header.tsx             — Role switcher, theme toggle
-│   ├── dashboard/
-│   │   ├── SummaryCard.tsx        — Boxy card with label, value, mini sparkline
-│   │   ├── BalanceTrendChart.tsx  — Area chart, monochrome with accent line
-│   │   └── SpendingBreakdown.tsx  — Donut chart with blocky legend
-│   ├── transactions/
-│   │   ├── TransactionTable.tsx   — Sortable table with pixel-style category icons
-│   │   ├── TransactionForm.tsx    — Modal form for add/edit (admin only)
-│   │   └── FilterBar.tsx          — Search, category, type, date filters
-│   └── insights/
-│       ├── InsightCard.tsx        — Stat card with observation text
-│       └── MonthlyComparison.tsx  — Bar chart, income vs expense
-└── lib/utils.ts                   — Currency formatting, date helpers
-```
+**New file: `src/components/layout/PageTransition.tsx`**
+- Wrapper component that applies `animate-fade-up` class on mount
+- Uses `useLocation().pathname` as React `key` to re-trigger animation on route change
 
-## Key Design Decisions
+**Modified: `src/App.tsx`**
+- Wrap each `<Route>` element content with `<PageTransition>` using location key
 
-**Typography & Spacing**: Monospace everywhere. Uppercase labels with letter-spacing for section headers (like hardware labels). Generous whitespace — Scandinavian breathing room.
+## 3. Date Range Filtering
 
-**Color as Utility**: The base UI is essentially monochrome. Color only appears for:
-- Green = income/positive
-- Red = expense/negative  
-- Orange/amber = interactive focus states, active nav, CTAs
-- This makes status instantly scannable
+**Modified: `src/components/transactions/FilterBar.tsx`**
+- Add a row with two date inputs ("From" / "To") between the search row and category chips
+- Styled consistently with the existing input pattern (border-2, monospace, etc.)
+- Wire to existing `dateFrom` / `dateTo` filter state already supported by AppContext
 
-**Tactile Elements**: Buttons have thick 2px borders and slight press-down transforms on click. Cards have hard borders instead of shadows. Toggle switches styled like physical sliders.
+## 4. High-Contrast Retro Background
 
-**Playful Touches**:
-- Category icons as simple 8-bit pixel sprites (CSS/inline SVG)
-- Subtle bounce animation on summary card values when data loads
-- A small blinking cursor `▮` next to the active nav item
-- Transaction amounts slide in from the right on load
+**Modified: `src/index.css`**
+- Add a subtle dot-grid background pattern to `body` using CSS `radial-gradient` — faint dark dots on the off-white background (light mode), faint light dots on charcoal (dark mode)
+- Gives the "graph paper / instrument panel" retro feel without being distracting
 
-**Responsive**: Sidebar collapses to a bottom tab bar on mobile. Summary cards stack to 2-column grid. Charts go full-width.
-
-## Implementation Steps
-
-1. **Types & Mock Data** — Define TypeScript interfaces and generate 50+ realistic transactions across categories (Food, Transport, Housing, Entertainment, Shopping, Health, Utilities, Salary, Freelance)
-
-2. **AppContext** — React Context with `useReducer` for transactions CRUD, role switching, filter state, theme. LocalStorage persistence for transactions and preferences.
-
-3. **Design System** — Update `index.css` with retro-futurist tokens (monospace font, sharp radius, high-contrast palette). Add custom animation keyframes (bounce-in for numbers, slide-in for rows, blink for cursor).
-
-4. **Layout Shell** — AppShell with fixed sidebar (pixel-art nav icons, blinking active indicator) and header (role dropdown styled as a "mode selector" knob, theme toggle as a physical switch).
-
-5. **Dashboard Page** — 4 summary cards (boxy, bordered, with mini ASCII-style sparklines via Recharts), balance trend area chart (monochrome fill, orange accent line), spending donut (high-contrast segments), recent 5 transactions list.
-
-6. **Transactions Page** — FilterBar with chunky input fields and toggle buttons. Table with sortable columns, pixel-style category dots, amount color-coded. Admin: add/edit modal with form validation. CSV export button. Empty state with pixel art illustration.
-
-7. **Insights Page** — Highest spending category highlight, month-over-month bar chart, top 3 expenses, auto-generated text observations, category comparison horizontal bars.
-
-8. **Polish** — Dark mode, responsive breakpoints, empty states, loading states with pixel-art spinner, smooth transitions between pages.
+**Modified: `src/components/layout/AppShell.tsx`**
+- Add a 2px accent-colored (orange) top bar at the very top of the viewport for that hardware-panel stripe
 
 ## Technical Notes
-
-- **No new dependencies needed** — Recharts, date-fns, Lucide, and shadcn/ui are already available
-- Google Fonts import for JetBrains Mono in `index.html`
-- All animations via Tailwind keyframes (no Framer Motion needed — keeping it lean)
-- Role state drives conditional rendering of admin controls throughout
+- No new dependencies required
+- The 429 build errors are transient npm registry rate limits — they resolve on retry
+- All changes use existing design tokens and Tailwind utilities
 
