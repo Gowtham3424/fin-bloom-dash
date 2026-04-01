@@ -91,6 +91,9 @@ export default function Dashboard() {
         <SpendingBreakdown />
       </div>
 
+      {/* Budget Tracker */}
+      <BudgetTracker />
+
       {/* Recent Transactions */}
       <div className="card-tactile p-4">
         <div className="label-uppercase mb-3">RECENT TRANSACTIONS</div>
