@@ -1,3 +1,4 @@
-# Welcome to your Lovable project
+# Welcome to your Financial Tracking Dashboard project
 
 TODO: Document your project here
+
