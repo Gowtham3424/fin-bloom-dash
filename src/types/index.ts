@@ -32,11 +32,17 @@ export interface Filters {
   sortDir: 'asc' | 'desc';
 }
 
+export interface Budget {
+  category: Category;
+  limit: number;
+}
+
 export interface AppState {
   role: Role;
   theme: 'light' | 'dark';
   transactions: Transaction[];
   filters: Filters;
+  budgets: Budget[];
 }
 
 export type AppAction =
@@ -46,4 +52,5 @@ export type AppAction =
   | { type: 'UPDATE_TRANSACTION'; payload: Transaction }
   | { type: 'DELETE_TRANSACTION'; payload: string }
   | { type: 'SET_FILTERS'; payload: Partial<Filters> }
-  | { type: 'RESET_FILTERS' };
+  | { type: 'RESET_FILTERS' }
+  | { type: 'SET_BUDGETS'; payload: Budget[] };
