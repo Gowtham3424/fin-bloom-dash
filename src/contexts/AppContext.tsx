@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, useMemo, useCallback } from 'react';
-import { AppState, AppAction, Filters, Role, Transaction } from '@/types';
+import { AppState, AppAction, Filters, Role, Transaction, Budget, Category } from '@/types';
 import { initialTransactions } from '@/data/mockData';
 
 const defaultFilters: Filters = {
@@ -12,6 +12,16 @@ const defaultFilters: Filters = {
   sortDir: 'desc',
 };
 
+const defaultBudgets: Budget[] = [
+  { category: 'Food' as Category, limit: 500 },
+  { category: 'Transport' as Category, limit: 300 },
+  { category: 'Housing' as Category, limit: 1500 },
+  { category: 'Entertainment' as Category, limit: 200 },
+  { category: 'Shopping' as Category, limit: 400 },
+  { category: 'Health' as Category, limit: 200 },
+  { category: 'Utilities' as Category, limit: 300 },
+];
+
 function loadState(): AppState {
   try {
     const saved = localStorage.getItem('finboard-state');
@@ -22,6 +32,7 @@ function loadState(): AppState {
         theme: parsed.theme || 'light',
         transactions: parsed.transactions || initialTransactions,
         filters: { ...defaultFilters, ...parsed.filters },
+        budgets: parsed.budgets || defaultBudgets,
       };
     }
   } catch { /* ignore */ }
@@ -30,6 +41,7 @@ function loadState(): AppState {
     theme: 'light',
     transactions: initialTransactions,
     filters: defaultFilters,
+    budgets: defaultBudgets,
   };
 }
 
@@ -57,6 +69,8 @@ function reducer(state: AppState, action: AppAction): AppState {
       return { ...state, filters: { ...state.filters, ...action.payload } };
     case 'RESET_FILTERS':
       return { ...state, filters: defaultFilters };
+    case 'SET_BUDGETS':
+      return { ...state, budgets: action.payload };
     default:
       return state;
   }
