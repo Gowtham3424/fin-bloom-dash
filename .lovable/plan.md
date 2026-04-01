@@ -1,54 +1,72 @@
 
 
-# Four Feature Additions
+# Finance Mascot, Tips, Market Rates & Secondary Income Ideas
 
-## 1. Budget Tracking
+## Overview
 
-**New file: `src/components/dashboard/BudgetTracker.tsx`**
-- Displays each expense category with a horizontal progress bar showing `spent / $limit`
-- Color-coded: green (<70%), orange (70-90%), red (>90%)
-- Admin can click a limit value to inline-edit it
+Add a new **"Advisor"** page with a friendly finance mascot character that provides daily savings tips, market updates, live gold/silver rates, and secondary income ideas — all in the retro-futurist aesthetic.
 
-**Modified: `src/types/index.ts`**
-- Add `Budget` interface: `{ category: Category; limit: number }`
-- Add `budgets: Budget[]` to `AppState`
-- Add `SET_BUDGETS` action type
+## 1. Finance Mascot — "FINBOT"
 
-**Modified: `src/contexts/AppContext.tsx`**
-- Initialize default budgets (one per expense category with sensible defaults like Food $500, Transport $300, etc.)
-- Handle `SET_BUDGETS` reducer action
-- Persist budgets to localStorage
+**New file: `src/components/advisor/FinMascot.tsx`**
+- A pixel-art style robot mascot rendered with CSS/SVG — boxy, monochrome with orange accent eyes (fits the Teenage Engineering aesthetic)
+- Shows a speech bubble with rotating daily tips
+- Subtle idle animation (blinking eyes, slight bobble)
+- Cheerful, positive tone in all messaging
 
-**Modified: `src/pages/Dashboard.tsx`**
-- Add `<BudgetTracker />` section below the charts grid
+**Tips system:**
+- A curated array of 20+ practical expense-reduction tips (e.g., "Pack lunch 3x/week → save ~$200/mo", "Cancel unused subscriptions", "Use the 24-hour rule before impulse buys")
+- Tips rotate daily (seeded by date so all users see the same tip per day)
+- User can click "Next tip" to cycle through more
+- Tips are personalized based on the user's top spending categories from their transaction data
 
-## 2. Page Transition Animations
+## 2. Market Updates & Trends
 
-**New file: `src/components/layout/PageTransition.tsx`**
-- Wrapper component that applies `animate-fade-up` class on mount
-- Uses `useLocation().pathname` as React `key` to re-trigger animation on route change
+**New file: `src/components/advisor/MarketTicker.tsx`**
+- A retro "stock ticker" style horizontal bar showing key market indicators
+- Uses free public APIs (no auth needed):
+  - **Gold & Silver**: via `https://api.metalpriceapi.com` or `https://metals-api.com` free tier — shows daily spot prices in USD per oz
+  - Fallback: Use a curated set of realistic mock data with slight daily randomization if API is unavailable
+- Displays: Gold $/oz, Silver $/oz, with daily change arrows (▲/▼) color-coded green/red
+- Auto-refreshes every 5 minutes via React Query
+
+**New file: `src/components/advisor/LiveRatesCard.tsx`**
+- Larger card showing Gold and Silver rates with:
+  - Current price, 24h change %, 7-day mini sparkline
+  - "Last updated" timestamp
+  - Styled as a tactile instrument panel readout
+
+## 3. Secondary Income Ideas
+
+**New file: `src/components/advisor/IncomeIdeas.tsx`**
+- A carousel/list of secondary income suggestions, each as a tactile card:
+  - Freelancing, dividend investing, selling unused items, cashback apps, rental income, digital products, tutoring, etc.
+- Each card has: icon, title, estimated monthly range, difficulty level (●○○ easy → ●●● hard), and a one-liner description
+- Cards styled as "program cards" — like selecting a mode on hardware
+
+## 4. New Page & Navigation
+
+**New file: `src/pages/Advisor.tsx`**
+- Layout: Mascot + speech bubble at top, then a 2-column grid with LiveRatesCard and IncomeIdeas, market ticker at bottom
+- Section headers in the usual `label-uppercase` style
+
+**Modified: `src/components/layout/Sidebar.tsx`**
+- Add "ADVSR" nav item with a `Bot` or `Lightbulb` icon from Lucide
 
 **Modified: `src/App.tsx`**
-- Wrap each `<Route>` element content with `<PageTransition>` using location key
+- Add `/advisor` route
 
-## 3. Date Range Filtering
+## 5. Data Fetching
 
-**Modified: `src/components/transactions/FilterBar.tsx`**
-- Add a row with two date inputs ("From" / "To") between the search row and category chips
-- Styled consistently with the existing input pattern (border-2, monospace, etc.)
-- Wire to existing `dateFrom` / `dateTo` filter state already supported by AppContext
-
-## 4. High-Contrast Retro Background
-
-**Modified: `src/index.css`**
-- Add a subtle dot-grid background pattern to `body` using CSS `radial-gradient` — faint dark dots on the off-white background (light mode), faint light dots on charcoal (dark mode)
-- Gives the "graph paper / instrument panel" retro feel without being distracting
-
-**Modified: `src/components/layout/AppShell.tsx`**
-- Add a 2px accent-colored (orange) top bar at the very top of the viewport for that hardware-panel stripe
+**Modified: No edge function needed** — use free public APIs directly from the client:
+- Gold/Silver rates: `https://api.gold-api.com/price/XAU` and `XAG` (free, no key)
+- Fallback to realistic mock data with date-seeded randomization if API fails
+- React Query with 5-min stale time for caching
 
 ## Technical Notes
-- No new dependencies required
-- The 429 build errors are transient npm registry rate limits — they resolve on retry
-- All changes use existing design tokens and Tailwind utilities
+- No new dependencies — uses existing React Query, Recharts, Lucide
+- Mascot is pure CSS/SVG, no image assets needed
+- Tips array is static data, no API needed
+- Market data fetched client-side with graceful fallback to mock data
+- All components follow the retro-futurist design system (monospace, tactile borders, color-as-utility)
 
