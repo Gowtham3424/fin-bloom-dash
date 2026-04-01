@@ -55,7 +55,28 @@ export function FilterBar() {
         </div>
       </div>
 
-      {/* Category chips */}
+      {/* Date range */}
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex items-center gap-1.5 flex-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground shrink-0">From</span>
+          <input
+            type="date"
+            value={f.dateFrom}
+            onChange={e => setFilter({ dateFrom: e.target.value })}
+            className="flex-1 h-9 px-2 text-xs bg-background border-2 border-foreground/20 rounded-sm focus:outline-none focus:border-accent font-mono"
+          />
+        </div>
+        <div className="flex items-center gap-1.5 flex-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground shrink-0">To</span>
+          <input
+            type="date"
+            value={f.dateTo}
+            onChange={e => setFilter({ dateTo: e.target.value })}
+            className="flex-1 h-9 px-2 text-xs bg-background border-2 border-foreground/20 rounded-sm focus:outline-none focus:border-accent font-mono"
+          />
+        </div>
+      </div>
+
       <div className="flex flex-wrap gap-1.5">
         {allCategories.map(cat => {
           const active = f.categories.includes(cat);
