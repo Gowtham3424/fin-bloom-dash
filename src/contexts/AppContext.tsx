@@ -95,8 +95,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       role: state.role,
       theme: state.theme,
       transactions: state.transactions,
+      budgets: state.budgets,
     }));
-  }, [state.role, state.theme, state.transactions]);
+  }, [state.role, state.theme, state.transactions, state.budgets]);
 
   // Apply theme class
   useEffect(() => {
