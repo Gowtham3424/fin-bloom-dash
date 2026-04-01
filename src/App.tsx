@@ -9,6 +9,7 @@ import { PageTransition } from "@/components/layout/PageTransition";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import Insights from "./pages/Insights";
+import Advisor from "./pages/Advisor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,7 @@ function AppRoutes() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/insights" element={<Insights />} />
+        <Route path="/advisor" element={<Advisor />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </PageTransition>
