@@ -3,6 +3,7 @@ import { useApp } from '@/contexts/AppContext';
 import { SummaryCard } from '@/components/dashboard/SummaryCard';
 import { BalanceTrendChart } from '@/components/dashboard/BalanceTrendChart';
 import { SpendingBreakdown } from '@/components/dashboard/SpendingBreakdown';
+import { BudgetTracker } from '@/components/dashboard/BudgetTracker';
 import { categoryIcons } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
