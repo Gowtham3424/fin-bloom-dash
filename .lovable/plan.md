@@ -1,72 +1,76 @@
 
+The user wants a new page showing online earning trends + live news (India-focused, local→national), refreshed daily, using free open sources.
 
-# Finance Mascot, Tips, Market Rates & Secondary Income Ideas
+Key questions: data sources. Free options without API keys:
+- Hacker News API (free, no key) — trending tech/startup
+- Reddit JSON endpoints (free) — r/IndiaInvestments, r/passive_income, r/IndianStreetBets
+- RSS feeds via rss2json.com (free tier) — for Indian news (Economic Times, Livemint, YourStory)
+- GNews / NewsData.io require keys
 
-## Overview
+I'll plan with free no-key sources + Reddit + HN, and offer Perplexity connector as optional upgrade for richer real-time summaries. Keep the retro aesthetic.
 
-Add a new **"Advisor"** page with a friendly finance mascot character that provides daily savings tips, market updates, live gold/silver rates, and secondary income ideas — all in the retro-futurist aesthetic.
+# Online Earning Trends — Live Dashboard
 
-## 1. Finance Mascot — "FINBOT"
+## New Page: `/earn-trends` ("EARN")
 
-**New file: `src/components/advisor/FinMascot.tsx`**
-- A pixel-art style robot mascot rendered with CSS/SVG — boxy, monochrome with orange accent eyes (fits the Teenage Engineering aesthetic)
-- Shows a speech bubble with rotating daily tips
-- Subtle idle animation (blinking eyes, slight bobble)
-- Cheerful, positive tone in all messaging
+Add nav item "EARN" in `Sidebar.tsx` (Lucide `Sparkles` icon) and route in `App.tsx`.
 
-**Tips system:**
-- A curated array of 20+ practical expense-reduction tips (e.g., "Pack lunch 3x/week → save ~$200/mo", "Cancel unused subscriptions", "Use the 24-hour rule before impulse buys")
-- Tips rotate daily (seeded by date so all users see the same tip per day)
-- User can click "Next tip" to cycle through more
-- Tips are personalized based on the user's top spending categories from their transaction data
+## Layout (`src/pages/EarnTrends.tsx`)
 
-## 2. Market Updates & Trends
+```text
+┌─ EARN // ONLINE INCOME RADAR ──────────────────┐
+│  [Last sync: 14:32]  [↻ refresh]  [INDIA ▾]    │
+├────────────────────────────────────────────────┤
+│  TRENDING NOW (ticker, auto-scroll)            │
+├──────────────────────┬─────────────────────────┤
+│  HOT EARNING METHODS │  LIVE NEWS FEED         │
+│  (Reddit + HN)       │  (Indian biz RSS)       │
+│  • card list         │  • headline + source    │
+│  • upvotes/score     │  • timestamp            │
+├──────────────────────┴─────────────────────────┤
+│  TRENDING TOPICS (tag cloud / chips)           │
+├────────────────────────────────────────────────┤
+│  REGIONAL PULSE: LOCAL → NATIONAL              │
+│  [tabs: Mumbai | Delhi | Bangalore | National] │
+└────────────────────────────────────────────────┘
+```
 
-**New file: `src/components/advisor/MarketTicker.tsx`**
-- A retro "stock ticker" style horizontal bar showing key market indicators
-- Uses free public APIs (no auth needed):
-  - **Gold & Silver**: via `https://api.metalpriceapi.com` or `https://metals-api.com` free tier — shows daily spot prices in USD per oz
-  - Fallback: Use a curated set of realistic mock data with slight daily randomization if API is unavailable
-- Displays: Gold $/oz, Silver $/oz, with daily change arrows (▲/▼) color-coded green/red
-- Auto-refreshes every 5 minutes via React Query
+## Components
 
-**New file: `src/components/advisor/LiveRatesCard.tsx`**
-- Larger card showing Gold and Silver rates with:
-  - Current price, 24h change %, 7-day mini sparkline
-  - "Last updated" timestamp
-  - Styled as a tactile instrument panel readout
+1. **`TrendingTicker.tsx`** — horizontal marquee of top 10 headlines (reuses MarketTicker styling).
+2. **`HotEarningMethods.tsx`** — fetches Reddit JSON from `r/IndiaInvestments`, `r/passive_income`, `r/sidehustle` top posts (last 24h). Displays as tactile cards: title, subreddit chip, score, comments, external link.
+3. **`LiveNewsFeed.tsx`** — fetches Indian business RSS via `https://api.rss2json.com/v1/api.json?rss_url=...` (no key, free). Sources: Economic Times Tech, Livemint Money, YourStory. Shows headline, source badge, time-ago, link.
+4. **`TrendingTopics.tsx`** — extracts keywords from fetched headlines (simple frequency count of capitalized terms / hashtags), renders as clickable chips that filter the feeds.
+5. **`RegionalPulse.tsx`** — tabs for major Indian cities + National. Filters news/posts by city keyword match.
 
-## 3. Secondary Income Ideas
+## Data Layer (`src/lib/trendsApi.ts`)
 
-**New file: `src/components/advisor/IncomeIdeas.tsx`**
-- A carousel/list of secondary income suggestions, each as a tactile card:
-  - Freelancing, dividend investing, selling unused items, cashback apps, rental income, digital products, tutoring, etc.
-- Each card has: icon, title, estimated monthly range, difficulty level (●○○ easy → ●●● hard), and a one-liner description
-- Cards styled as "program cards" — like selecting a mode on hardware
+All client-side via React Query, no API keys, no edge functions:
 
-## 4. New Page & Navigation
+| Source | Endpoint | Refresh |
+|---|---|---|
+| Reddit hot posts | `https://www.reddit.com/r/{sub}/top.json?t=day&limit=15` | 15 min |
+| Hacker News | `https://hacker-news.firebaseio.com/v0/topstories.json` + item lookup | 15 min |
+| Indian business RSS | `api.rss2json.com/v1/api.json?rss_url={feed}` | 30 min |
 
-**New file: `src/pages/Advisor.tsx`**
-- Layout: Mascot + speech bubble at top, then a 2-column grid with LiveRatesCard and IncomeIdeas, market ticker at bottom
-- Section headers in the usual `label-uppercase` style
+Feeds:
+- ET Tech: `https://economictimes.indiatimes.com/tech/rssfeeds/13357270.cms`
+- Livemint Money: `https://www.livemint.com/rss/money`
+- YourStory: `https://yourstory.com/feed`
 
-**Modified: `src/components/layout/Sidebar.tsx`**
-- Add "ADVSR" nav item with a `Bot` or `Lightbulb` icon from Lucide
+Graceful fallback: if a fetch fails (CORS/rate limit), show curated static fallback content with "offline" badge — mirrors `MarketTicker` pattern.
 
-**Modified: `src/App.tsx`**
-- Add `/advisor` route
+## Daily Freshness
+React Query `staleTime: 15min`, `refetchInterval: 15min`, `refetchOnWindowFocus: true`. "Last updated" timestamp visible in header. Manual ↻ refresh button.
 
-## 5. Data Fetching
+## Design
+Retro-futurist — monospace, 2px borders, sharp corners, orange accents for "HOT/LIVE", green/red for trending up/down. Each card = tactile module like existing Advisor page.
 
-**Modified: No edge function needed** — use free public APIs directly from the client:
-- Gold/Silver rates: `https://api.gold-api.com/price/XAU` and `XAG` (free, no key)
-- Fallback to realistic mock data with date-seeded randomization if API fails
-- React Query with 5-min stale time for caching
+## Optional Upgrade (mention to user, don't build now)
+Connect **Perplexity** connector for AI-summarized "Today's top earning opportunity in India" daily brief (requires user approval to add connector + edge function).
 
-## Technical Notes
-- No new dependencies — uses existing React Query, Recharts, Lucide
-- Mascot is pure CSS/SVG, no image assets needed
-- Tips array is static data, no API needed
-- Market data fetched client-side with graceful fallback to mock data
-- All components follow the retro-futurist design system (monospace, tactile borders, color-as-utility)
+## Files
+- New: `src/pages/EarnTrends.tsx`, `src/components/earn/TrendingTicker.tsx`, `HotEarningMethods.tsx`, `LiveNewsFeed.tsx`, `TrendingTopics.tsx`, `RegionalPulse.tsx`, `src/lib/trendsApi.ts`
+- Edited: `src/App.tsx` (add route), `src/components/layout/Sidebar.tsx` (add EARN nav)
 
+No new dependencies.
