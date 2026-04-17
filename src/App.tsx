@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import Insights from "./pages/Insights";
 import Advisor from "./pages/Advisor";
+import EarnTrends from "./pages/EarnTrends";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ function AppRoutes() {
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/insights" element={<Insights />} />
         <Route path="/advisor" element={<Advisor />} />
+        <Route path="/earn-trends" element={<EarnTrends />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </PageTransition>
