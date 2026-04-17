@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { LayoutDashboard, ArrowLeftRight, TrendingUp, Bot, Menu, Sparkles } from 'lucide-react';
+import { LayoutDashboard, ArrowLeftRight, TrendingUp, Bot, Menu } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { cn } from '@/lib/utils';
 
@@ -9,7 +9,6 @@ const navItems = [
   { path: '/transactions', label: 'TXNS', icon: ArrowLeftRight },
   { path: '/insights', label: 'STATS', icon: TrendingUp },
   { path: '/advisor', label: 'ADVSR', icon: Bot },
-  { path: '/earn-trends', label: 'EARN', icon: Sparkles },
 ];
 
 export function Sidebar() {
