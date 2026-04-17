@@ -22,6 +22,21 @@ export interface NewsItem {
   offline?: boolean;
 }
 
+// ---------- ANTI-FAKE FILTER ----------
+const SPAM_PATTERNS = [
+  /click here/i, /free money/i, /guaranteed/i, /\b100%\s+(profit|return|guaranteed)/i,
+  /telegram\s+(group|channel)/i, /whatsapp\s+me/i, /dm\s+me\s+for/i, /earn\s+\$?\d+\s+per\s+day/i,
+  /\[removed\]/i, /\[deleted\]/i,
+];
+
+function isLikelyFake(post: { title?: string; author?: string; score?: number; selftext?: string }): boolean {
+  const text = `${post.title || ''} ${post.selftext || ''}`;
+  if (!text.trim()) return true;
+  if (post.author === '[deleted]' || post.author === 'AutoModerator') return true;
+  if ((post.score ?? 0) < 5) return true;
+  return SPAM_PATTERNS.some((p) => p.test(text));
+}
+
 // ---------- REDDIT ----------
 const SUBS = ['IndiaInvestments', 'passive_income', 'sidehustle', 'IndianStreetBets'];
 
@@ -32,15 +47,17 @@ export async function fetchRedditPosts(): Promise<TrendPost[]> {
         const res = await fetch(`https://www.reddit.com/r/${sub}/top.json?t=day&limit=8`);
         if (!res.ok) throw new Error('reddit fail');
         const json = await res.json();
-        return (json.data?.children || []).map((c: any) => ({
-          id: c.data.id,
-          title: c.data.title,
-          source: `r/${sub}`,
-          url: `https://reddit.com${c.data.permalink}`,
-          score: c.data.score,
-          comments: c.data.num_comments,
-          timestamp: c.data.created_utc * 1000,
-        })) as TrendPost[];
+        return (json.data?.children || [])
+          .filter((c: any) => !isLikelyFake(c.data))
+          .map((c: any) => ({
+            id: c.data.id,
+            title: c.data.title,
+            source: `r/${sub}`,
+            url: `https://reddit.com${c.data.permalink}`,
+            score: c.data.score,
+            comments: c.data.num_comments,
+            timestamp: c.data.created_utc * 1000,
+          })) as TrendPost[];
       })
     );
     const flat = results.flat().sort((a, b) => (b.score || 0) - (a.score || 0));

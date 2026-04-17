@@ -1,4 +1,5 @@
 import { useApp } from '@/contexts/AppContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { categoryIcons } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
@@ -7,6 +8,7 @@ import { Filters } from '@/types';
 
 export function TransactionTable({ onEdit }: { onEdit?: (id: string) => void }) {
   const { state, dispatch, filteredTransactions } = useApp();
+  const { format: fmt } = useCurrency();
   const isAdmin = state.role === 'admin';
 
   const toggleSort = (col: Filters['sortBy']) => {
@@ -97,7 +99,7 @@ export function TransactionTable({ onEdit }: { onEdit?: (id: string) => void }) 
                   "px-4 py-2.5 text-right font-bold tabular-nums",
                   t.type === 'income' ? "text-income" : "text-expense"
                 )}>
-                  {t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}
+                  {t.type === 'income' ? '+' : '-'}{fmt(t.amount)}
                 </td>
                 {isAdmin && (
                   <td className="px-4 py-2.5 text-right">

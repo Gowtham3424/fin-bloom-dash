@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { useApp } from '@/contexts/AppContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { categoryColors, categoryIcons } from '@/data/mockData';
 import { Category } from '@/types';
 
 export function SpendingBreakdown() {
   const { state } = useApp();
+  const { format: fmt } = useCurrency();
 
   const data = useMemo(() => {
     const catMap = new Map<Category, number>();
@@ -56,7 +58,7 @@ export function SpendingBreakdown() {
                   fontFamily: 'JetBrains Mono',
                   fontSize: 11,
                 }}
-                formatter={(value: number) => [`$${value.toLocaleString()}`, '']}
+                formatter={(value: number) => [fmt(value, { decimals: 0 }), '']}
               />
             </PieChart>
           </ResponsiveContainer>

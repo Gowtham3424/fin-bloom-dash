@@ -4,13 +4,14 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider } from "@/contexts/AppContext";
+import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { AppShell } from "@/components/layout/AppShell";
 import { PageTransition } from "@/components/layout/PageTransition";
+import { Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import Insights from "./pages/Insights";
 import Advisor from "./pages/Advisor";
-import EarnTrends from "./pages/EarnTrends";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,7 +25,7 @@ function AppRoutes() {
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/insights" element={<Insights />} />
         <Route path="/advisor" element={<Advisor />} />
-        <Route path="/earn-trends" element={<EarnTrends />} />
+        <Route path="/earn-trends" element={<Navigate to="/advisor" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </PageTransition>
@@ -37,11 +38,13 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AppProvider>
-        <BrowserRouter>
-          <AppShell>
-            <AppRoutes />
-          </AppShell>
-        </BrowserRouter>
+        <CurrencyProvider>
+          <BrowserRouter>
+            <AppShell>
+              <AppRoutes />
+            </AppShell>
+          </BrowserRouter>
+        </CurrencyProvider>
       </AppProvider>
     </TooltipProvider>
   </QueryClientProvider>
