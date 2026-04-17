@@ -1,6 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface TickerItem {
   label: string;
@@ -8,28 +9,47 @@ interface TickerItem {
   change: number;
 }
 
-function generateTickerData(): TickerItem[] {
+const OZ_TO_GRAM = 31.1035;
+
+function generateInternational(): { goldUSDperOz: number; silverUSDperOz: number; btc: number; sp: number; eur: number; goldChg: number; silverChg: number; btcChg: number; spChg: number; eurChg: number } {
   const today = new Date();
   const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
   const rand = (s: number) => ((s * 9301 + 49297) % 233280) / 233280;
-
-  return [
-    { label: 'XAU/USD', value: (2640 + (rand(seed) - 0.5) * 60).toFixed(2), change: (rand(seed + 1) - 0.5) * 3 },
-    { label: 'XAG/USD', value: (31 + (rand(seed + 2) - 0.5) * 2).toFixed(2), change: (rand(seed + 3) - 0.5) * 4 },
-    { label: 'BTC/USD', value: (68000 + (rand(seed + 4) - 0.5) * 4000).toFixed(0), change: (rand(seed + 5) - 0.5) * 6 },
-    { label: 'S&P 500', value: (5200 + (rand(seed + 6) - 0.5) * 100).toFixed(0), change: (rand(seed + 7) - 0.5) * 2 },
-    { label: 'EUR/USD', value: (1.08 + (rand(seed + 8) - 0.5) * 0.02).toFixed(4), change: (rand(seed + 9) - 0.5) * 1 },
-  ];
+  return {
+    goldUSDperOz: 2640 + (rand(seed) - 0.5) * 60,
+    silverUSDperOz: 31 + (rand(seed + 2) - 0.5) * 2,
+    btc: 68000 + (rand(seed + 4) - 0.5) * 4000,
+    sp: 5200 + (rand(seed + 6) - 0.5) * 100,
+    eur: 1.08 + (rand(seed + 8) - 0.5) * 0.02,
+    goldChg: (rand(seed + 1) - 0.5) * 3,
+    silverChg: (rand(seed + 3) - 0.5) * 4,
+    btcChg: (rand(seed + 5) - 0.5) * 6,
+    spChg: (rand(seed + 7) - 0.5) * 2,
+    eurChg: (rand(seed + 9) - 0.5) * 1,
+  };
 }
 
 export function MarketTicker() {
-  const { data: items } = useQuery({
+  const { data } = useQuery({
     queryKey: ['market-ticker'],
-    queryFn: () => Promise.resolve(generateTickerData()),
+    queryFn: () => Promise.resolve(generateInternational()),
     staleTime: 5 * 60 * 1000,
   });
 
-  const ticker = items || generateTickerData();
+  const { rateUSDtoCurrent, currency, formatRaw } = useCurrency();
+  const m = data || generateInternational();
+
+  // Gold/Silver: convert to selected currency PER GRAM
+  const goldLocalPerG = (m.goldUSDperOz / OZ_TO_GRAM) * rateUSDtoCurrent;
+  const silverLocalPerG = (m.silverUSDperOz / OZ_TO_GRAM) * rateUSDtoCurrent;
+
+  const ticker: TickerItem[] = [
+    { label: `XAU/${currency.code}/g`, value: formatRaw(goldLocalPerG, currency.code, { decimals: 0 }), change: m.goldChg },
+    { label: `XAG/${currency.code}/g`, value: formatRaw(silverLocalPerG, currency.code, { decimals: 2 }), change: m.silverChg },
+    { label: 'BTC/USD', value: `$${m.btc.toFixed(0)}`, change: m.btcChg },
+    { label: 'S&P 500', value: m.sp.toFixed(0), change: m.spChg },
+    { label: 'EUR/USD', value: m.eur.toFixed(4), change: m.eurChg },
+  ];
 
   return (
     <div className="border-2 border-foreground/20 bg-card rounded-sm overflow-hidden">
