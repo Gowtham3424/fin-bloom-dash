@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { Category, Budget } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -9,6 +10,7 @@ const expenseCategories: Category[] = [
 
 export function BudgetTracker() {
   const { state, dispatch } = useApp();
+  const { format: fmt, convert, rateUSDtoCurrent, currency } = useCurrency();
   const isAdmin = state.role === 'admin';
   const [editingCat, setEditingCat] = useState<Category | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -23,16 +25,18 @@ export function BudgetTracker() {
 
   const budgetMap = new Map(state.budgets.map(b => [b.category, b.limit]));
 
-  const startEdit = (cat: Category, limit: number) => {
+  const startEdit = (cat: Category, limitUSD: number) => {
     setEditingCat(cat);
-    setEditValue(String(limit));
+    // edit in displayed currency
+    setEditValue(String(Math.round(limitUSD * rateUSDtoCurrent)));
   };
 
   const saveEdit = (cat: Category) => {
     const val = parseFloat(editValue);
     if (!isNaN(val) && val > 0) {
+      const limitUSD = val / rateUSDtoCurrent;
       const updated = state.budgets.map(b =>
-        b.category === cat ? { ...b, limit: val } : b
+        b.category === cat ? { ...b, limit: limitUSD } : b
       );
       dispatch({ type: 'SET_BUDGETS', payload: updated });
     }
@@ -57,7 +61,7 @@ export function BudgetTracker() {
                   <span className={cn(
                     overBudget ? 'text-expense' : 'text-foreground/50'
                   )}>
-                    ${spent.toFixed(0)}
+                    {fmt(spent, { decimals: 0 })}
                   </span>
                   <span className="text-foreground/30">/</span>
                   {editingCat === cat ? (
@@ -67,7 +71,7 @@ export function BudgetTracker() {
                       onChange={e => setEditValue(e.target.value)}
                       onBlur={() => saveEdit(cat)}
                       onKeyDown={e => e.key === 'Enter' && saveEdit(cat)}
-                      className="w-16 h-5 px-1 text-[10px] bg-background border border-foreground/20 rounded-sm focus:outline-none focus:border-accent font-mono"
+                      className="w-20 h-5 px-1 text-[10px] bg-background border border-foreground/20 rounded-sm focus:outline-none focus:border-accent font-mono"
                       autoFocus
                     />
                   ) : (
@@ -78,7 +82,7 @@ export function BudgetTracker() {
                         isAdmin && "hover:text-accent cursor-pointer"
                       )}
                     >
-                      ${limit}
+                      {fmt(limit, { decimals: 0 })}
                     </button>
                   )}
                 </span>

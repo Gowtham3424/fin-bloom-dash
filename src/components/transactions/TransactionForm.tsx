@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { Transaction, Category, TransactionType } from '@/types';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
@@ -18,6 +19,7 @@ interface Props {
 
 export function TransactionForm({ open, onClose, editId }: Props) {
   const { state, dispatch } = useApp();
+  const { currency, rateUSDtoCurrent } = useCurrency();
   const editing = editId ? state.transactions.find(t => t.id === editId) : null;
 
   const [description, setDescription] = useState('');
@@ -29,7 +31,8 @@ export function TransactionForm({ open, onClose, editId }: Props) {
   useEffect(() => {
     if (editing) {
       setDescription(editing.description);
-      setAmount(String(editing.amount));
+      // show in selected currency
+      setAmount((editing.amount * rateUSDtoCurrent).toFixed(2));
       setType(editing.type);
       setCategory(editing.category);
       setDate(editing.date);
@@ -40,18 +43,21 @@ export function TransactionForm({ open, onClose, editId }: Props) {
       setCategory('Food');
       setDate(new Date().toISOString().split('T')[0]);
     }
-  }, [editing, open]);
+  }, [editing, open, rateUSDtoCurrent]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = parseFloat(amount);
     if (!description || isNaN(parsed) || parsed <= 0) return;
 
+    // store amount in base USD
+    const amountUSD = parsed / rateUSDtoCurrent;
+
     const txn: Transaction = {
       id: editing?.id || `txn-${Date.now()}`,
       date,
       description,
-      amount: parsed,
+      amount: amountUSD,
       type,
       category,
     };
@@ -93,7 +99,7 @@ export function TransactionForm({ open, onClose, editId }: Props) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>Amount ($)</label>
+              <label className={labelClass}>Amount ({currency.symbol} {currency.code})</label>
               <input
                 type="number"
                 step="0.01"

@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { useApp } from '@/contexts/AppContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { format, parseISO } from 'date-fns';
 
 export function BalanceTrendChart() {
   const { state } = useApp();
+  const { format: fmt, convert, currency } = useCurrency();
 
   const data = useMemo(() => {
     const monthlyMap = new Map<string, { income: number; expenses: number }>();
@@ -48,7 +50,7 @@ export function BalanceTrendChart() {
               tick={{ fontSize: 10, fontFamily: 'JetBrains Mono', fill: 'hsl(var(--muted-foreground))' }}
               tickLine={false}
               axisLine={false}
-              tickFormatter={v => `$${(v / 1000).toFixed(0)}k`}
+              tickFormatter={v => `${currency.symbol}${(convert(v) / 1000).toFixed(0)}k`}
             />
             <Tooltip
               contentStyle={{
@@ -58,7 +60,7 @@ export function BalanceTrendChart() {
                 fontFamily: 'JetBrains Mono',
                 fontSize: 11,
               }}
-              formatter={(value: number) => [`$${value.toLocaleString()}`, 'Balance']}
+              formatter={(value: number) => [fmt(value, { decimals: 0 }), 'Balance']}
             />
             <Area
               type="stepAfter"

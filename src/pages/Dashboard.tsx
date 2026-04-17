@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useApp } from '@/contexts/AppContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { SummaryCard } from '@/components/dashboard/SummaryCard';
 import { BalanceTrendChart } from '@/components/dashboard/BalanceTrendChart';
 import { SpendingBreakdown } from '@/components/dashboard/SpendingBreakdown';
@@ -10,6 +11,7 @@ import { format, parseISO } from 'date-fns';
 
 export default function Dashboard() {
   const { state } = useApp();
+  const { format: fmt } = useCurrency();
 
   const stats = useMemo(() => {
     const now = new Date();
@@ -56,13 +58,13 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <SummaryCard
           label="Balance"
-          value={`$${Math.round(stats.balance).toLocaleString()}`}
+          value={fmt(stats.balance, { decimals: 0 })}
           icon="◈"
           delay={0}
         />
         <SummaryCard
           label="Income"
-          value={`$${Math.round(stats.thisIncome).toLocaleString()}`}
+          value={fmt(stats.thisIncome, { decimals: 0 })}
           change={`${stats.incomeChange >= 0 ? '+' : ''}${stats.incomeChange.toFixed(1)}% vs last mo.`}
           changeType={stats.incomeChange >= 0 ? 'positive' : 'negative'}
           icon="▲"
@@ -70,7 +72,7 @@ export default function Dashboard() {
         />
         <SummaryCard
           label="Expenses"
-          value={`$${Math.round(stats.thisExpenses).toLocaleString()}`}
+          value={fmt(stats.thisExpenses, { decimals: 0 })}
           change={`${stats.expenseChange >= 0 ? '+' : ''}${stats.expenseChange.toFixed(1)}% vs last mo.`}
           changeType={stats.expenseChange <= 0 ? 'positive' : 'negative'}
           icon="▼"
@@ -117,7 +119,7 @@ export default function Dashboard() {
                 "text-sm font-bold tabular-nums shrink-0",
                 t.type === 'income' ? "text-income" : "text-expense"
               )}>
-                {t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}
+                {t.type === 'income' ? '+' : '-'}{fmt(t.amount)}
               </span>
             </div>
           ))}
