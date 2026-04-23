@@ -92,7 +92,7 @@ export default function Advisor() {
                 { v: 'news', label: 'NEWS' },
                 { v: 'social', label: 'SOCIAL' },
                 { v: 'brands', label: 'BRANDS' },
-                { v: 'cricket', label: 'CRICKET' },
+                { v: 'cricket', label: 'IPL 2026' },
               ].map((t) => (
                 <TabsTrigger
                   key={t.v}
